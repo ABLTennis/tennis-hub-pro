@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock, User, Eye, EyeOff, ArrowLeft, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/lib/auth';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
@@ -29,6 +29,7 @@ export default function Auth() {
   });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const navigate = useNavigate();
+  const { login, register } = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -55,21 +56,7 @@ export default function Auth() {
           return;
         }
 
-        const { error } = await supabase.auth.signInWithPassword({
-          email: formData.email,
-          password: formData.password,
-        });
-
-        if (error) {
-          if (error.message.includes('Invalid login credentials')) {
-            toast.error('Invalid email or password');
-          } else {
-            toast.error(error.message);
-          }
-          setIsLoading(false);
-          return;
-        }
-
+        await login(formData.email, formData.password);
         toast.success('Welcome back!');
         navigate('/dashboard');
       } else {
@@ -86,32 +73,18 @@ export default function Auth() {
           return;
         }
 
-        const { error } = await supabase.auth.signUp({
-          email: formData.email,
-          password: formData.password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/`,
-            data: {
-              full_name: formData.name,
-            },
-          },
-        });
-
-        if (error) {
-          if (error.message.includes('already registered')) {
-            toast.error('This email is already registered. Please sign in.');
-          } else {
-            toast.error(error.message);
-          }
-          setIsLoading(false);
-          return;
-        }
-
+        await register(formData.name, formData.email, formData.password);
         toast.success('Account created successfully!');
         navigate('/dashboard');
       }
     } catch (err) {
-      toast.error('An unexpected error occurred');
+      const message = err instanceof Error ? err.message : 'An unexpected error occurred';
+      try {
+        const parsed = JSON.parse(message);
+        toast.error(parsed.error || message);
+      } catch {
+        toast.error(message);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -119,23 +92,21 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-court via-court-dark to-court-dark flex">
-      {/* Left side - Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="w-full max-w-md"
         >
-          {/* Back link */}
           <Link
             to="/"
             className="inline-flex items-center text-white/70 hover:text-white text-sm mb-8 transition-colors"
+            data-testid="link-back-home"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Home
           </Link>
 
-          {/* Logo */}
           <div className="flex items-center gap-3 mb-8">
             <div className="relative w-12 h-12 rounded-full bg-gradient-to-br from-court-light to-court flex items-center justify-center border-2 border-gold">
               <span className="text-xl font-bold text-white font-display">B</span>
@@ -148,7 +119,6 @@ export default function Auth() {
             </div>
           </div>
 
-          {/* Form Card */}
           <div className="bg-white rounded-2xl p-8 shadow-2xl">
             <h1 className="text-2xl font-display font-bold mb-2">
               {isLogin ? 'Welcome Back' : 'Create Account'}
@@ -176,6 +146,7 @@ export default function Auth() {
                       className={`w-full pl-10 pr-4 py-3 rounded-lg border ${
                         errors.name ? 'border-destructive' : 'border-border'
                       } focus:outline-none focus:ring-2 focus:ring-court/50`}
+                      data-testid="input-name"
                     />
                   </div>
                   {errors.name && (
@@ -197,6 +168,7 @@ export default function Auth() {
                     className={`w-full pl-10 pr-4 py-3 rounded-lg border ${
                       errors.email ? 'border-destructive' : 'border-border'
                     } focus:outline-none focus:ring-2 focus:ring-court/50`}
+                    data-testid="input-email"
                   />
                 </div>
                 {errors.email && (
@@ -217,11 +189,13 @@ export default function Auth() {
                     className={`w-full pl-10 pr-12 py-3 rounded-lg border ${
                       errors.password ? 'border-destructive' : 'border-border'
                     } focus:outline-none focus:ring-2 focus:ring-court/50`}
+                    data-testid="input-password"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    data-testid="button-toggle-password"
                   >
                     {showPassword ? (
                       <EyeOff className="w-5 h-5" />
@@ -241,6 +215,7 @@ export default function Auth() {
                 size="lg"
                 className="w-full"
                 disabled={isLoading}
+                data-testid="button-submit"
               >
                 {isLoading ? (
                   <>
@@ -265,6 +240,7 @@ export default function Auth() {
                     setErrors({});
                   }}
                   className="text-court font-medium hover:underline"
+                  data-testid="button-toggle-auth-mode"
                 >
                   {isLogin ? 'Sign up' : 'Sign in'}
                 </button>
@@ -274,7 +250,6 @@ export default function Auth() {
         </motion.div>
       </div>
 
-      {/* Right side - Decoration */}
       <div className="hidden lg:flex lg:w-1/2 items-center justify-center relative">
         <div className="absolute inset-0 court-pattern opacity-20" />
         <div className="relative text-center text-white p-12">

@@ -8,7 +8,6 @@ import {
   Users, 
   LogOut,
   Menu,
-  X,
   Home,
   CalendarDays,
   Receipt,
@@ -16,9 +15,8 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/lib/auth';
 import { toast } from 'sonner';
-import { User } from '@supabase/supabase-js';
 import { AIAssistant } from '@/components/chat/AIAssistant';
 
 const navigation = [
@@ -35,44 +33,28 @@ const mockBookings = [
 ];
 
 export default function Dashboard() {
-  const [user, setUser] = useState<User | null>(null);
+  const { user, isLoading, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setUser(session?.user ?? null);
-        if (!session?.user) {
-          navigate('/auth');
-        }
-      }
-    );
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (!session?.user) {
-        navigate('/auth');
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [navigate]);
+    if (!isLoading && !user) {
+      navigate('/auth');
+    }
+  }, [user, isLoading, navigate]);
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut();
+    await logout();
     toast.success('Signed out successfully');
     navigate('/');
   };
 
-  if (!user) return null;
+  if (isLoading || !user) return null;
 
   return (
     <div className="min-h-screen bg-background flex">
-      {/* Sidebar */}
       <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-sidebar transform transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="flex flex-col h-full">
-          {/* Logo */}
           <div className="p-4 border-b border-sidebar-border">
             <div className="flex items-center gap-3">
               <div className="relative w-10 h-10 rounded-full bg-gradient-to-br from-court-light to-court flex items-center justify-center">
@@ -85,13 +67,13 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Navigation */}
           <nav className="flex-1 p-4 space-y-1">
             {navigation.map((item) => (
               <a
                 key={item.name}
                 href={item.href}
                 className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground transition-colors"
+                data-testid={`nav-${item.name.toLowerCase().replace(' ', '-')}`}
               >
                 <item.icon className="w-5 h-5" />
                 <span className="font-medium">{item.name}</span>
@@ -99,17 +81,16 @@ export default function Dashboard() {
             ))}
           </nav>
 
-          {/* User section */}
           <div className="p-4 border-t border-sidebar-border">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-full bg-sidebar-accent flex items-center justify-center">
                 <span className="text-sm font-bold text-sidebar-foreground">
-                  {user.user_metadata?.full_name?.[0] || user.email?.[0]?.toUpperCase()}
+                  {user.fullName?.[0] || user.email?.[0]?.toUpperCase()}
                 </span>
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-sidebar-foreground truncate">
-                  {user.user_metadata?.full_name || 'Member'}
+                  {user.fullName || 'Member'}
                 </p>
                 <p className="text-xs text-sidebar-foreground/60 truncate">
                   {user.email}
@@ -120,6 +101,7 @@ export default function Dashboard() {
               variant="ghost"
               className="w-full justify-start text-sidebar-foreground/80 hover:text-sidebar-foreground hover:bg-sidebar-accent"
               onClick={handleSignOut}
+              data-testid="button-sign-out"
             >
               <LogOut className="w-4 h-4 mr-2" />
               Sign Out
@@ -128,7 +110,6 @@ export default function Dashboard() {
         </div>
       </aside>
 
-      {/* Mobile sidebar overlay */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/50 lg:hidden"
@@ -136,40 +117,37 @@ export default function Dashboard() {
         />
       )}
 
-      {/* Main content */}
       <main className="flex-1 lg:ml-64">
-        {/* Top bar */}
         <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-md border-b border-border">
           <div className="flex items-center justify-between px-4 py-3">
             <button
               className="lg:hidden p-2 rounded-lg hover:bg-muted"
               onClick={() => setSidebarOpen(true)}
+              data-testid="button-open-sidebar"
             >
               <Menu className="w-6 h-6" />
             </button>
             <h1 className="text-lg font-display font-bold">Dashboard</h1>
-            <Button variant="hero" size="sm" onClick={() => navigate('/book')}>
+            <Button variant="hero" size="sm" onClick={() => navigate('/book')} data-testid="button-book-court">
               Book Court
             </Button>
           </div>
         </header>
 
         <div className="p-6">
-          {/* Welcome */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="mb-8"
           >
-            <h2 className="text-2xl font-display font-bold">
-              Welcome back, {user.user_metadata?.full_name?.split(' ')[0] || 'Player'}! 👋
+            <h2 className="text-2xl font-display font-bold" data-testid="text-welcome">
+              Welcome back, {user.fullName?.split(' ')[0] || 'Player'}!
             </h2>
             <p className="text-muted-foreground">
               Here's an overview of your tennis activity
             </p>
           </motion.div>
 
-          {/* Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             {[
               { label: 'Total Bookings', value: '12', icon: Calendar, color: 'text-court' },
@@ -183,6 +161,7 @@ export default function Dashboard() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.1 }}
                 className="stat-card"
+                data-testid={`stat-${stat.label.toLowerCase().replace(' ', '-')}`}
               >
                 <div className="flex items-center justify-between mb-4">
                   <div className={`w-10 h-10 rounded-lg bg-court/10 flex items-center justify-center`}>
@@ -195,7 +174,6 @@ export default function Dashboard() {
             ))}
           </div>
 
-          {/* Recent Bookings */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -204,14 +182,14 @@ export default function Dashboard() {
           >
             <div className="p-4 border-b border-border flex items-center justify-between">
               <h3 className="font-display font-semibold">Recent Bookings</h3>
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" data-testid="button-view-all">
                 View All
                 <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
             </div>
             <div className="divide-y divide-border">
               {mockBookings.map((booking) => (
-                <div key={booking.id} className="p-4 flex items-center justify-between">
+                <div key={booking.id} className="p-4 flex items-center justify-between" data-testid={`booking-${booking.id}`}>
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-lg bg-court/10 flex items-center justify-center">
                       <Calendar className="w-5 h-5 text-court" />
