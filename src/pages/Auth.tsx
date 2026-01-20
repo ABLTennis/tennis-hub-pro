@@ -150,74 +150,119 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-court via-court-dark to-court-dark flex">
+    <div className="min-h-screen bg-gradient-to-br from-court via-court-dark to-court-dark flex flex-col lg:flex-row relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 court-pattern opacity-10" />
+      <motion.div 
+        animate={{ 
+          scale: [1, 1.2, 1],
+          opacity: [0.05, 0.15, 0.05]
+        }}
+        transition={{ duration: 8, repeat: Infinity }}
+        className="absolute top-1/4 left-1/4 w-64 h-64 sm:w-96 sm:h-96 bg-gold/10 rounded-full blur-3xl" 
+      />
+      <motion.div 
+        animate={{ 
+          scale: [1.2, 1, 1.2],
+          opacity: [0.1, 0.2, 0.1]
+        }}
+        transition={{ duration: 10, repeat: Infinity }}
+        className="absolute bottom-1/4 right-1/4 w-64 h-64 sm:w-96 sm:h-96 bg-court/10 rounded-full blur-3xl" 
+      />
+
       {/* Left side - Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-4 sm:p-6 lg:p-12 relative z-10 min-h-screen lg:min-h-0">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-md"
+          initial={{ opacity: 0, x: -30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="w-full max-w-lg"
         >
           {/* Back link */}
-          <Link
-            to="/"
-            className="inline-flex items-center text-white/70 hover:text-white text-sm mb-8 transition-colors"
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Home
-          </Link>
+            <Link
+              to="/"
+              className="inline-flex items-center text-white/80 hover:text-white text-sm mb-10 transition-all group"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-1 transition-transform" />
+              Back to Home
+            </Link>
+          </motion.div>
 
           {/* Logo */}
-          <div className="flex items-center gap-3 mb-8">
-            <div className="relative w-12 h-12 rounded-full bg-gradient-to-br from-court-light to-court flex items-center justify-center border-2 border-gold">
-              <span className="text-xl font-bold text-white font-display">B</span>
-              <div className="absolute -right-0.5 -bottom-0.5 w-4 h-4 rounded-full bg-tennis-yellow shadow-sm" />
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="flex items-center gap-4 mb-10"
+          >
+            <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-br from-court-light to-court flex items-center justify-center border-2 border-gold shadow-xl">
+              <span className="text-2xl font-bold text-white font-display">B</span>
+              <div className="absolute -right-1 -bottom-1 w-5 h-5 rounded-full bg-tennis-yellow shadow-lg" />
             </div>
             <div>
-              <span className="text-xl font-bold font-display text-white">
-                Buwate Tennis Club
+              <span className="text-2xl font-bold font-display text-white block">
+                Buwate Tennis
+              </span>
+              <span className="text-sm text-white/70 uppercase tracking-wider">
+                Club
               </span>
             </div>
-          </div>
+          </motion.div>
 
           {/* Form Card */}
-          <div className="bg-white rounded-2xl p-8 shadow-2xl">
-            <h1 className="text-2xl font-display font-bold mb-2">
-              {isLogin ? 'Welcome Back' : 'Create Account'}
-            </h1>
-            <p className="text-muted-foreground mb-6">
-              {isLogin
-                ? 'Sign in to manage your bookings'
-                : 'Join BTC and start booking courts'}
-            </p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="bg-white/95 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-10 shadow-2xl border border-white/20 w-full max-w-lg"
+          >
+            <div className="mb-6 sm:mb-8">
+              <h1 className="text-2xl sm:text-3xl font-display font-bold mb-2 sm:mb-3 text-foreground">
+                {isLogin ? 'Welcome Back' : 'Create Account'}
+              </h1>
+              <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
+                {isLogin
+                  ? 'Sign in to manage your bookings and access your dashboard'
+                  : 'Join BTC and start booking courts with exclusive member benefits'}
+              </p>
+            </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-5">
               {!isLogin && (
                 <>
                   <div>
-                    <label className="block text-sm font-medium mb-2">
+                    <label className="block text-sm font-semibold mb-3 text-foreground">
                       Full Name
                     </label>
                     <div className="relative">
-                      <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                      <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                       <input
                         type="text"
                         name="name"
                         value={formData.name}
                         onChange={handleChange}
-                        placeholder="Enter your full name"
-                        className={`w-full pl-10 pr-4 py-3 rounded-lg border ${
-                          errors.name ? 'border-destructive' : 'border-border'
-                        } focus:outline-none focus:ring-2 focus:ring-court/50`}
+                        placeholder="John Doe"
+                        className={`w-full pl-12 pr-4 py-3.5 rounded-xl border-2 transition-all ${
+                          errors.name 
+                            ? 'border-destructive focus:border-destructive focus:ring-destructive/20' 
+                            : 'border-border/50 hover:border-border focus:border-court focus:ring-court/20'
+                        } focus:outline-none focus:ring-4 bg-background`}
                       />
                     </div>
                     {errors.name && (
-                      <p className="text-sm text-destructive mt-1">{errors.name}</p>
+                      <p className="text-sm text-destructive mt-2 flex items-center gap-1">
+                        <span>⚠</span> {errors.name}
+                      </p>
                     )}
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-3">
+                    <label className="block text-sm font-semibold mb-4 text-foreground">
                       I am signing up as:
                     </label>
                     <RadioGroup
@@ -228,90 +273,116 @@ export default function Auth() {
                       }}
                       className="space-y-3"
                     >
-                      <div className="flex items-center space-x-3 p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors">
-                        <RadioGroupItem value="member" id="member" />
+                      <motion.div 
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className={`flex items-center space-x-4 p-5 rounded-xl border-2 transition-all cursor-pointer ${
+                          formData.role === 'member'
+                            ? 'border-court bg-court/5 shadow-md'
+                            : 'border-border/50 hover:border-court/50 hover:bg-muted/50'
+                        }`}
+                        onClick={() => setFormData({ ...formData, role: 'member' })}
+                      >
+                        <RadioGroupItem value="member" id="member" className="mt-0.5" />
                         <Label
                           htmlFor="member"
-                          className="flex-1 cursor-pointer flex items-center gap-3"
+                          className="flex-1 cursor-pointer flex items-center gap-4"
                         >
-                          <div className="w-10 h-10 rounded-lg bg-court/10 flex items-center justify-center">
-                            <Users className="w-5 h-5 text-court" />
+                          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-court/15 to-court/5 flex items-center justify-center shadow-sm">
+                            <Users className="w-6 h-6 text-court" />
                           </div>
                           <div>
-                            <div className="font-medium">Member</div>
-                            <div className="text-xs text-muted-foreground">
+                            <div className="font-semibold text-base">Member</div>
+                            <div className="text-sm text-muted-foreground mt-0.5">
                               Book courts and enjoy club benefits
                             </div>
                           </div>
                         </Label>
-                      </div>
-                      <div className="flex items-center space-x-3 p-4 rounded-lg border border-border hover:bg-muted/50 transition-colors">
-                        <RadioGroupItem value="coach" id="coach" />
+                      </motion.div>
+                      <motion.div 
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        className={`flex items-center space-x-4 p-5 rounded-xl border-2 transition-all cursor-pointer ${
+                          formData.role === 'coach'
+                            ? 'border-gold/50 bg-gold/5 shadow-md'
+                            : 'border-border/50 hover:border-gold/50 hover:bg-muted/50'
+                        }`}
+                        onClick={() => setFormData({ ...formData, role: 'coach' })}
+                      >
+                        <RadioGroupItem value="coach" id="coach" className="mt-0.5" />
                         <Label
                           htmlFor="coach"
-                          className="flex-1 cursor-pointer flex items-center gap-3"
+                          className="flex-1 cursor-pointer flex items-center gap-4"
                         >
-                          <div className="w-10 h-10 rounded-lg bg-gold/10 flex items-center justify-center">
-                            <Trophy className="w-5 h-5 text-gold-dark" />
+                          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gold/15 to-gold/5 flex items-center justify-center shadow-sm">
+                            <Trophy className="w-6 h-6 text-gold-dark" />
                           </div>
                           <div>
-                            <div className="font-medium">Coach</div>
-                            <div className="text-xs text-muted-foreground">
+                            <div className="font-semibold text-base">Coach</div>
+                            <div className="text-sm text-muted-foreground mt-0.5">
                               Manage availability and sessions
                             </div>
                           </div>
                         </Label>
-                      </div>
+                      </motion.div>
                     </RadioGroup>
                     {errors.role && (
-                      <p className="text-sm text-destructive mt-1">{errors.role}</p>
+                      <p className="text-sm text-destructive mt-2 flex items-center gap-1">
+                        <span>⚠</span> {errors.role}
+                      </p>
                     )}
-                    <p className="text-xs text-muted-foreground mt-2">
-                      <Shield className="w-3 h-3 inline mr-1" />
-                      Note: Admin accounts can only be created by existing admins
+                    <p className="text-xs text-muted-foreground mt-3 p-3 rounded-lg bg-muted/50 border border-border/50 flex items-start gap-2">
+                      <Shield className="w-3.5 h-3.5 mt-0.5 text-muted-foreground shrink-0" />
+                      <span>Note: Admin accounts can only be created by existing administrators.</span>
                     </p>
                   </div>
                 </>
               )}
 
               <div>
-                <label className="block text-sm font-medium mb-2">Email</label>
+                <label className="block text-sm font-semibold mb-3 text-foreground">Email Address</label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <input
                     type="email"
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    placeholder="Enter your email"
-                    className={`w-full pl-10 pr-4 py-3 rounded-lg border ${
-                      errors.email ? 'border-destructive' : 'border-border'
-                    } focus:outline-none focus:ring-2 focus:ring-court/50`}
+                    placeholder="your.email@example.com"
+                    className={`w-full pl-12 pr-4 py-3.5 rounded-xl border-2 transition-all ${
+                      errors.email 
+                        ? 'border-destructive focus:border-destructive focus:ring-destructive/20' 
+                        : 'border-border/50 hover:border-border focus:border-court focus:ring-court/20'
+                    } focus:outline-none focus:ring-4 bg-background`}
                   />
                 </div>
                 {errors.email && (
-                  <p className="text-sm text-destructive mt-1">{errors.email}</p>
+                  <p className="text-sm text-destructive mt-2 flex items-center gap-1">
+                    <span>⚠</span> {errors.email}
+                  </p>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-2">Password</label>
+                <label className="block text-sm font-semibold mb-3 text-foreground">Password</label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
-                    placeholder="Enter your password"
-                    className={`w-full pl-10 pr-12 py-3 rounded-lg border ${
-                      errors.password ? 'border-destructive' : 'border-border'
-                    } focus:outline-none focus:ring-2 focus:ring-court/50`}
+                    placeholder="Minimum 6 characters"
+                    className={`w-full pl-12 pr-12 py-3.5 rounded-xl border-2 transition-all ${
+                      errors.password 
+                        ? 'border-destructive focus:border-destructive focus:ring-destructive/20' 
+                        : 'border-border/50 hover:border-border focus:border-court focus:ring-court/20'
+                    } focus:outline-none focus:ring-4 bg-background`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1"
                   >
                     {showPassword ? (
                       <EyeOff className="w-5 h-5" />
@@ -321,7 +392,9 @@ export default function Auth() {
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="text-sm text-destructive mt-1">{errors.password}</p>
+                  <p className="text-sm text-destructive mt-2 flex items-center gap-1">
+                    <span>⚠</span> {errors.password}
+                  </p>
                 )}
               </div>
 
@@ -329,12 +402,12 @@ export default function Auth() {
                 type="submit"
                 variant="court"
                 size="lg"
-                className="w-full"
+                className="w-full py-6 text-base font-semibold shadow-lg hover:shadow-xl transition-all mt-2"
                 disabled={isLoading}
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                     {isLogin ? 'Signing in...' : 'Creating account...'}
                   </>
                 ) : isLogin ? (
@@ -347,72 +420,79 @@ export default function Auth() {
 
             {/* OAuth Options - Only for login */}
             {isLogin && (
-              <>
-                <div className="relative my-6">
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+                className="space-y-4"
+              >
+                <div className="relative my-8">
                   <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t" />
+                    <span className="w-full border-t border-border" />
                   </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-white px-2 text-muted-foreground">Or continue with</span>
+                  <div className="relative flex justify-center text-xs uppercase tracking-wider">
+                    <span className="bg-white px-4 text-muted-foreground font-medium">Or continue with</span>
                   </div>
                 </div>
 
-                <div className="space-y-3">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full"
-                    onClick={async () => {
-                      setIsLoading(true);
-                      try {
-                        const { error } = await supabase.auth.signInWithOAuth({
-                          provider: 'google',
-                          options: {
-                            redirectTo: `${window.location.origin}/auth/callback`,
-                            queryParams: {
-                              access_type: 'offline',
-                              prompt: 'consent',
-                            },
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full py-6 text-base font-medium border-2 hover:bg-muted/50 transition-all"
+                  onClick={async () => {
+                    setIsLoading(true);
+                    try {
+                      const { error } = await supabase.auth.signInWithOAuth({
+                        provider: 'google',
+                        options: {
+                          redirectTo: `${window.location.origin}/auth/callback`,
+                          queryParams: {
+                            access_type: 'offline',
+                            prompt: 'consent',
                           },
-                        });
-                        if (error) {
-                          toast.error(error.message || 'Failed to sign in with Google');
-                          setIsLoading(false);
-                        }
-                        // Note: User will be redirected, so we don't set loading to false here
-                      } catch (err) {
-                        console.error('OAuth error:', err);
-                        toast.error('Failed to connect to Google. Please try again.');
+                        },
+                      });
+                      if (error) {
+                        toast.error(error.message || 'Failed to sign in with Google');
                         setIsLoading(false);
                       }
-                    }}
-                    disabled={isLoading}
-                  >
-                    <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
-                      <path
-                        fill="currentColor"
-                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                      />
-                      <path
-                        fill="currentColor"
-                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                      />
-                      <path
-                        fill="currentColor"
-                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                      />
-                      <path
-                        fill="currentColor"
-                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                      />
-                    </svg>
-                    Continue with Google
-                  </Button>
-                </div>
-              </>
+                    } catch (err) {
+                      console.error('OAuth error:', err);
+                      toast.error('Failed to connect to Google. Please try again.');
+                      setIsLoading(false);
+                    }
+                  }}
+                  disabled={isLoading}
+                >
+                  <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
+                    <path
+                      fill="currentColor"
+                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                    />
+                    <path
+                      fill="currentColor"
+                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                    />
+                    <path
+                      fill="currentColor"
+                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                    />
+                    <path
+                      fill="currentColor"
+                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                    />
+                  </svg>
+                  Continue with Google
+                </Button>
+              </motion.div>
             )}
 
-            <div className="mt-6 text-center">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.7 }}
+              className="mt-8 pt-6 border-t border-border/50 text-center"
+            >
               <p className="text-sm text-muted-foreground">
                 {isLogin ? "Don't have an account?" : 'Already have an account?'}{' '}
                 <button
@@ -420,36 +500,68 @@ export default function Auth() {
                   onClick={() => {
                     setIsLogin(!isLogin);
                     setErrors({});
+                    setFormData({ name: '', email: '', password: '', role: 'member' });
                   }}
-                  className="text-court font-medium hover:underline"
+                  className="text-court font-semibold hover:text-court-dark hover:underline transition-colors"
                 >
                   {isLogin ? 'Sign up' : 'Sign in'}
                 </button>
               </p>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </motion.div>
       </div>
 
-      {/* Right side - Decoration */}
-      <div className="hidden lg:flex lg:w-1/2 items-center justify-center relative">
-        <div className="absolute inset-0 court-pattern opacity-20" />
-        <div className="relative text-center text-white p-12">
+      {/* Right side - Enhanced Decoration - Hidden on mobile */}
+      <div className="hidden lg:flex lg:w-1/2 items-center justify-center relative overflow-hidden">
+        <div className="absolute inset-0 court-pattern opacity-15" />
+        <div className="absolute inset-0 bg-gradient-to-l from-transparent via-court/5 to-court/10" />
+        
+        <div className="relative text-center text-white p-12 z-10">
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.2 }}
+            initial={{ opacity: 0, scale: 0.9, x: 20 }}
+            animate={{ opacity: 1, scale: 1, x: 0 }}
+            transition={{ delay: 0.4, duration: 0.6 }}
+            className="max-w-md"
           >
-            <div className="w-24 h-24 rounded-full bg-gold/20 flex items-center justify-center mx-auto mb-8">
-              <div className="w-16 h-16 rounded-full bg-tennis-yellow animate-tennis-bounce" />
-            </div>
-            <h2 className="text-3xl font-display font-bold mb-4">
+            <motion.div 
+              animate={{ 
+                scale: [1, 1.1, 1],
+                rotate: [0, 5, -5, 0]
+              }}
+              transition={{ duration: 6, repeat: Infinity }}
+              className="w-32 h-32 rounded-3xl bg-gradient-to-br from-gold/30 to-gold/10 backdrop-blur-sm flex items-center justify-center mx-auto mb-10 shadow-2xl border border-gold/20"
+            >
+              <div className="w-24 h-24 rounded-full bg-tennis-yellow shadow-xl" />
+            </motion.div>
+            <h2 className="text-4xl font-display font-bold mb-6 leading-tight">
               Your Game Awaits
             </h2>
-            <p className="text-white/70 max-w-sm mx-auto">
+            <p className="text-white/80 text-lg leading-relaxed max-w-sm mx-auto mb-8">
               Book courts, track your games, connect with players, and be part 
               of Uganda's most vibrant tennis community.
             </p>
+            
+            {/* Feature highlights */}
+            <div className="space-y-4 mt-10 text-left max-w-xs mx-auto">
+              {[
+                { icon: '🎾', text: 'Professional clay courts' },
+                { icon: '👥', text: '70+ active members' },
+                { icon: '🏆', text: 'Regular tournaments' },
+                { icon: '🤖', text: 'AI-powered booking' },
+              ].map((feature, idx) => (
+                <motion.div
+                  key={feature.text}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.6 + idx * 0.1 }}
+                  className="flex items-center gap-3 text-white/80"
+                >
+                  <span className="text-2xl">{feature.icon}</span>
+                  <span className="text-sm">{feature.text}</span>
+                </motion.div>
+              ))}
+            </div>
           </motion.div>
         </div>
       </div>
