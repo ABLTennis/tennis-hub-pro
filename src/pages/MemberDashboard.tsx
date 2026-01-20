@@ -35,7 +35,8 @@ import {
   FileText,
   Bell,
   Shield,
-  Lock
+  Lock,
+  Trophy
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
