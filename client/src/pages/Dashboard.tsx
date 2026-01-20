@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import { 
   Calendar, 
   Clock, 
@@ -32,6 +32,8 @@ const mockBookings = [
   { id: 3, court: 'Court 1', date: 'Jan 15, 2026', time: '10:00 AM', status: 'completed' },
 ];
 
+
+// Legacy dashboard - redirects to role-specific dashboard
 export default function Dashboard() {
   const { user, isLoading, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -216,6 +218,7 @@ export default function Dashboard() {
       </main>
 
       <AIAssistant />
+
     </div>
   );
 }
